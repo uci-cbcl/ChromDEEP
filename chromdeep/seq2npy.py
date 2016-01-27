@@ -6,22 +6,30 @@ import numpy as np
 
 from chromdeep.utils import *
 
-TARGET = {'BR':0, 'O':1, 'B':2, 'DG':3}
-SEQ_LEN = 300
+# TARGET = {'BR':0, 'O':1, 'B':2, 'DG':3}
+SEQ_LEN = 1000
 
 def main():
     infile = open(sys.argv[1])
     outbase = sys.argv[2]
-    line_num = int(sys.argv[3])
+    color_str = sys.argv[3] #'BR,O,B,DG'
+    line_num = int(sys.argv[4])
+    
+    color_lst = color_str.split(',')
+    color_dict = {}
+    class_num = len(color_lst)
+    
+    for k in range(0, class_num):
+        color_dict[color_lst[k]] = k
     
     X = np.zeros((line_num, SEQ_LEN, 4), dtype='float32')
-    Y = np.zeros((line_num, len(TARGET.keys())), dtype='float32')
+    Y = np.zeros((line_num, class_num), dtype='float32')
     
     i = 0
     for line in infile:
         chrom, start, end, label, color, seq = line.strip('\n').split('\t')
         x = onehot(seq)
-        y_idx = TARGET[color]
+        y_idx = color_dict[color]
         
         X[i, :, :] = x
         Y[i, y_idx] = 1.0
