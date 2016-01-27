@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import time
 
 import numpy as np
 
@@ -10,16 +11,16 @@ from keras.layers.convolutional import Convolution1D, MaxPooling1D
 from keras.optimizers import SGD
 
 NB_FILTER = 100
-NB_HIDDEN = 500
+NB_HIDDEN = 10
 FILTER_LEN = 20
 DROP_OUT_CNN = 0.25
-DROP_OUT_MLP = 0.5
+DROP_OUT_MLP = 0.0
 ACTIVATION = 'relu'
 LR = 0.01
 DECAY = 1e-6
 MOMENTUM = 0.9
-BATCH_SIZE = 100
-NB_EPOCH = 50
+BATCH_SIZE = 500
+NB_EPOCH = 20
 
 
 def main():
@@ -49,31 +50,35 @@ def main():
     model.add(Dropout(DROP_OUT_CNN))
     model.add(Flatten())
     
-    model.add(Dense(input_dim=NB_FILTER, output_dim=NB_HIDDEN))
-#     model.add(Dense(NB_HIDDEN))
+#     model.add(Dense(input_dim=NB_FILTER, output_dim=NB_HIDDEN))
+    model.add(Dense(NB_HIDDEN))
     model.add(Activation('relu'))
     model.add(Dropout(DROP_OUT_MLP))
     
     model.add(Dense(input_dim=NB_HIDDEN, output_dim=class_num))
     model.add(Activation('softmax'))
-    
+     
     sgd = SGD(lr=LR, decay=DECAY, momentum=MOMENTUM)
-
+ 
     print 'model compiling...'
     sys.stdout.flush()
-    
-    model.compile(loss='categorical_crossentropy', optimizer=sgd)
+     
+#     model.compile(loss='categorical_crossentropy', optimizer=sgd, class_mode='categorical')
+    model.compile(loss='categorical_crossentropy', optimizer='rmsprop', class_mode='categorical')
     
     print 'training...'
     sys.stdout.flush()
     
+    time_start = time.time()
     model.fit(X_tr, Y_tr, batch_size=BATCH_SIZE, nb_epoch=NB_EPOCH, 
               show_accuracy=True, validation_data=(X_va, Y_va))
+    time_end = time.time()
     
     loss_te, acc_te = model.evaluate(X_te, Y_te, show_accuracy=True)
     
     print '*'*100
-    print 'accuracy_te : %s' % (acc_te)
+    print 'accuracy_te : %.4f' % (acc_te)
+    print 'training time : %d sec' % (time_end-time_start)
     
 if __name__ == '__main__':
     main()
