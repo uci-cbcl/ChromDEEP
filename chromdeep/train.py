@@ -10,11 +10,11 @@ from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution1D, MaxPooling1D
 from keras.optimizers import SGD
 
-NB_FILTER = 100
-NB_HIDDEN = 10
+NB_FILTER = 200
+NB_HIDDEN = 100
 FILTER_LEN = 20
 DROP_OUT_CNN = 0.25
-DROP_OUT_MLP = 0.0
+DROP_OUT_MLP = 0.5
 ACTIVATION = 'relu'
 LR = 0.01
 DECAY = 1e-6
@@ -77,8 +77,8 @@ def main():
     loss_te, acc_te = model.evaluate(X_te, Y_te, show_accuracy=True)
     
     print '*'*100
-    print 'accuracy_te : %.4f' % (acc_te)
-    print 'training time : %d sec' % (time_end-time_start)
+    print '%s accuracy_te : %.4f' % (base_name, acc_te)
+    print '%s training time : %d sec' % (base_name, time_end-time_start)
     
 if __name__ == '__main__':
     main()
