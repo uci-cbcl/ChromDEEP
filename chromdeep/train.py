@@ -9,22 +9,24 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution1D, MaxPooling1D
 from keras.optimizers import SGD
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 
-NB_FILTER = 200
-NB_HIDDEN = 100
+NB_FILTER = 500
+NB_HIDDEN = 500
 FILTER_LEN = 20
 DROP_OUT_CNN = 0.25
-DROP_OUT_MLP = 0.5
+DROP_OUT_MLP = 0.25
 ACTIVATION = 'relu'
 LR = 0.01
 DECAY = 1e-6
 MOMENTUM = 0.9
 BATCH_SIZE = 500
-NB_EPOCH = 20
+NB_EPOCH = 50
 
 
 def main():
     base_name = sys.argv[1]
+    save_name = sys.argv[2]
     
     print 'loading data...'
     sys.stdout.flush()
@@ -66,14 +68,19 @@ def main():
 #     model.compile(loss='categorical_crossentropy', optimizer=sgd, class_mode='categorical')
     model.compile(loss='categorical_crossentropy', optimizer='rmsprop', class_mode='categorical')
     
+    checkpointer = ModelCheckpoint(filepath=save_name+'.hdf5', verbose=1, save_best_only=True)
+    earlystopper = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
+    
     print 'training...'
     sys.stdout.flush()
     
     time_start = time.time()
     model.fit(X_tr, Y_tr, batch_size=BATCH_SIZE, nb_epoch=NB_EPOCH, 
-              show_accuracy=True, validation_data=(X_va, Y_va))
+              show_accuracy=True, validation_data=(X_va, Y_va),
+              callbacks=[checkpointer, earlystopper])
     time_end = time.time()
     
+    loss_va, acc_va = model.evaluate(X_va, Y_va, show_accuracy=True)
     loss_te, acc_te = model.evaluate(X_te, Y_te, show_accuracy=True)
     
     print '*'*100
