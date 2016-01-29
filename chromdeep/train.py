@@ -69,7 +69,7 @@ def main():
     model.compile(loss='categorical_crossentropy', optimizer='rmsprop', class_mode='categorical')
     
     checkpointer = ModelCheckpoint(filepath=save_name+'.hdf5', verbose=1, save_best_only=True)
-    earlystopper = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
+#    earlystopper = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
     
     print 'training...'
     sys.stdout.flush()
@@ -77,13 +77,18 @@ def main():
     time_start = time.time()
     model.fit(X_tr, Y_tr, batch_size=BATCH_SIZE, nb_epoch=NB_EPOCH, 
               show_accuracy=True, validation_data=(X_va, Y_va),
-              callbacks=[checkpointer, earlystopper])
+              callbacks=[checkpointer])
     time_end = time.time()
     
     loss_va, acc_va = model.evaluate(X_va, Y_va, show_accuracy=True)
     loss_te, acc_te = model.evaluate(X_te, Y_te, show_accuracy=True)
+    Y_va_hat = model.predict(X_va, BATCH_SIZE, verbose=1)
+    Y_te_hat = model.predict(X_te, BATCH_SIZE, verbose=1)
+    np.save('Y_'+save_name+'va_hat.npy', Y_va_hat)
+    np.save('Y_'+save_name+'te_hat.npy', Y_te_hat)
     
     print '*'*100
+    print '%s accuracy_va : %.4f' % (base_name, acc_va)
     print '%s accuracy_te : %.4f' % (base_name, acc_te)
     print '%s training time : %d sec' % (base_name, time_end-time_start)
     
