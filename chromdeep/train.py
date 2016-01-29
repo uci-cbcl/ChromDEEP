@@ -84,8 +84,8 @@ def main():
     loss_te, acc_te = model.evaluate(X_te, Y_te, show_accuracy=True)
     Y_va_hat = model.predict(X_va, BATCH_SIZE, verbose=1)
     Y_te_hat = model.predict(X_te, BATCH_SIZE, verbose=1)
-    np.save('Y_'+save_name+'va_hat.npy', Y_va_hat)
-    np.save('Y_'+save_name+'te_hat.npy', Y_te_hat)
+    np.save('Y_'+save_name+'_va_hat.npy', Y_va_hat)
+    np.save('Y_'+save_name+'_te_hat.npy', Y_te_hat)
     
     print '*'*100
     print '%s accuracy_va : %.4f' % (base_name, acc_va)
