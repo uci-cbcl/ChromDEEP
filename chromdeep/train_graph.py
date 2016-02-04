@@ -16,8 +16,8 @@ FILTER_LEN3 = 30
 NB_FILTER1 = 50
 NB_FILTER2 = 150
 NB_FILTER3 = 150
-POOL_LEN = 200
-NB_HIDDEN = 500
+POOL_FACTOR = 5
+NB_HIDDEN = 350
 DROP_OUT_CNN = 0.5
 DROP_OUT_MLP = 0.5
 ACTIVATION = 'relu'
@@ -42,6 +42,9 @@ def main():
     
     __, seq_len, channel_num = X_tr.shape
     __, class_num = Y_tr.shape
+    pool_len1 = (seq_len-FILTER_LEN1+1)/POOL_FACTOR
+    pool_len2 = (seq_len-FILTER_LEN2+1)/POOL_FACTOR
+    pool_len3 = (seq_len-FILTER_LEN3+1)/POOL_FACTOR
     
     model = Graph()
     
@@ -51,11 +54,11 @@ def main():
     model.add_node(Convolution1D(input_dim=channel_num,
                         input_length=seq_len,
                         nb_filter=NB_FILTER1,
-                        border_mode='same',
+                        border_mode='valid',
                         filter_length=FILTER_LEN1,
                         activation=ACTIVATION),
                    name='conv1', input='input')
-    model.add_node(MaxPooling1D(pool_length=POOL_LEN, stride=POOL_LEN), name='maxpool1', input='conv1')
+    model.add_node(MaxPooling1D(pool_length=pool_len1, stride=pool_len1), name='maxpool1', input='conv1')
     model.add_node(Dropout(DROP_OUT_CNN), name='drop_cnn1', input='maxpool1')
     model.add_node(Flatten(), name='flat1', input='drop_cnn1')
     
@@ -63,11 +66,11 @@ def main():
     model.add_node(Convolution1D(input_dim=channel_num,
                         input_length=seq_len,
                         nb_filter=NB_FILTER2,
-                        border_mode='same',
+                        border_mode='valid',
                         filter_length=FILTER_LEN2,
                         activation=ACTIVATION),
                    name='conv2', input='input')
-    model.add_node(MaxPooling1D(pool_length=POOL_LEN, stride=POOL_LEN), name='maxpool2', input='conv2')
+    model.add_node(MaxPooling1D(pool_length=pool_len2, stride=pool_len2), name='maxpool2', input='conv2')
     model.add_node(Dropout(DROP_OUT_CNN), name='drop_cnn2', input='maxpool2')
     model.add_node(Flatten(), name='flat2', input='drop_cnn2')
     
@@ -75,11 +78,11 @@ def main():
     model.add_node(Convolution1D(input_dim=channel_num,
                         input_length=seq_len,
                         nb_filter=NB_FILTER3,
-                        border_mode='same',
+                        border_mode='valid',
                         filter_length=FILTER_LEN3,
                         activation=ACTIVATION),
                    name='conv3', input='input')
-    model.add_node(MaxPooling1D(pool_length=POOL_LEN, stride=POOL_LEN), name='maxpool3', input='conv3')
+    model.add_node(MaxPooling1D(pool_length=pool_len3, stride=pool_len3), name='maxpool3', input='conv3')
     model.add_node(Dropout(DROP_OUT_CNN), name='drop_cnn3', input='maxpool3')
     model.add_node(Flatten(), name='flat3', input='drop_cnn3')
 

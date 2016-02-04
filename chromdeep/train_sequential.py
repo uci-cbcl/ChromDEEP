@@ -14,7 +14,7 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping
 NB_FILTER = 300
 NB_HIDDEN = 300
 FILTER_LEN = 20
-POOL_LEN = 200
+POOL_FACTOR = 5
 DROP_OUT_CNN = 0.5
 DROP_OUT_MLP = 0.5
 ACTIVATION = 'relu'
@@ -41,17 +41,18 @@ def main():
     
     __, seq_len, channel_num = X_tr.shape
     __, class_num = Y_tr.shape
+    pool_len = (seq_len-FILTER_LEN+1)/POOL_FACTOR
     
     model = Sequential()
     
     model.add(Convolution1D(input_dim=channel_num,
                         input_length=seq_len,
                         nb_filter=NB_FILTER,
-                        border_mode='same',
+                        border_mode='valid',
                         filter_length=FILTER_LEN,
                         activation=ACTIVATION))
 #     model.add(MaxPooling1D(pool_length=seq_len-FILTER_LEN))
-    model.add(MaxPooling1D(pool_length=POOL_LEN, stride=POOL_LEN))
+    model.add(MaxPooling1D(pool_length=pool_len, stride=pool_len))
     model.add(Dropout(DROP_OUT_CNN))
     model.add(Flatten())
     
