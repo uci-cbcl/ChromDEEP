@@ -8,20 +8,21 @@ import numpy as np
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution1D, MaxPooling1D
-from keras.optimizers import SGD
+# from keras.optimizers import SGD
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
-NB_FILTER = 500
-NB_HIDDEN = 500
+NB_FILTER = 300
+NB_HIDDEN = 300
 FILTER_LEN = 20
-DROP_OUT_CNN = 0.25
-DROP_OUT_MLP = 0.25
+POOL_LEN = 200
+DROP_OUT_CNN = 0.5
+DROP_OUT_MLP = 0.5
 ACTIVATION = 'relu'
-LR = 0.01
-DECAY = 1e-6
-MOMENTUM = 0.9
+# LR = 0.01
+# DECAY = 1e-6
+# MOMENTUM = 0.9
 BATCH_SIZE = 500
-NB_EPOCH = 50
+NB_EPOCH = 30
 
 
 def main():
@@ -46,13 +47,14 @@ def main():
     model.add(Convolution1D(input_dim=channel_num,
                         input_length=seq_len,
                         nb_filter=NB_FILTER,
+                        border_mode='same',
                         filter_length=FILTER_LEN,
                         activation=ACTIVATION))
-    model.add(MaxPooling1D(pool_length=seq_len-FILTER_LEN))
+#     model.add(MaxPooling1D(pool_length=seq_len-FILTER_LEN))
+    model.add(MaxPooling1D(pool_length=POOL_LEN, stride=POOL_LEN))
     model.add(Dropout(DROP_OUT_CNN))
     model.add(Flatten())
     
-#     model.add(Dense(input_dim=NB_FILTER, output_dim=NB_HIDDEN))
     model.add(Dense(NB_HIDDEN))
     model.add(Activation('relu'))
     model.add(Dropout(DROP_OUT_MLP))
@@ -60,16 +62,19 @@ def main():
     model.add(Dense(input_dim=NB_HIDDEN, output_dim=class_num))
     model.add(Activation('softmax'))
      
-    sgd = SGD(lr=LR, decay=DECAY, momentum=MOMENTUM)
+#     sgd = SGD(lr=LR, decay=DECAY, momentum=MOMENTUM)
  
     print 'model compiling...'
     sys.stdout.flush()
      
-#     model.compile(loss='categorical_crossentropy', optimizer=sgd, class_mode='categorical')
     model.compile(loss='categorical_crossentropy', optimizer='rmsprop', class_mode='categorical')
     
     checkpointer = ModelCheckpoint(filepath=save_name+'.hdf5', verbose=1, save_best_only=True)
 #    earlystopper = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
+
+    outmodel = open(save_name+'.json', 'w')
+    outmodel.write(model.to_json())
+    outmodel.close()
     
     print 'training...'
     sys.stdout.flush()
@@ -80,13 +85,13 @@ def main():
               callbacks=[checkpointer])
     time_end = time.time()
     
-    loss_va, acc_va = model.evaluate(X_va, Y_va, show_accuracy=True)
-    loss_te, acc_te = model.evaluate(X_te, Y_te, show_accuracy=True)
+    model.load_weights(save_name+'.hdf5')
     Y_va_hat = model.predict(X_va, BATCH_SIZE, verbose=1)
     Y_te_hat = model.predict(X_te, BATCH_SIZE, verbose=1)
-    np.save('Y_'+save_name+'_va_hat.npy', Y_va_hat)
-    np.save('Y_'+save_name+'_te_hat.npy', Y_te_hat)
-    
+    acc_va = np.where(Y_va.argmax(axis=1) == Y_va_hat.argmax(axis=1))[0].size*1.0/Y_va.shape[0]
+    acc_te = np.where(Y_te.argmax(axis=1) == Y_te_hat.argmax(axis=1))[0].size*1.0/Y_te.shape[0]
+
+
     print '*'*100
     print '%s accuracy_va : %.4f' % (base_name, acc_va)
     print '%s accuracy_te : %.4f' % (base_name, acc_te)
