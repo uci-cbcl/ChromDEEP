@@ -10,9 +10,9 @@ from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution1D, MaxPooling1D
 from keras.callbacks import ModelCheckpoint, EarlyStopping, Callback
     
-FILTER_LEN1 = 5
-FILTER_LEN2 = 10
-FILTER_LEN3 = 20
+FILTER_LEN1 = 10
+FILTER_LEN2 = 20
+FILTER_LEN3 = 30
 NB_FILTER1 = 50
 NB_FILTER2 = 150
 NB_FILTER3 = 150
