@@ -13,7 +13,7 @@ def main():
     
     
     for line in infile:
-        chr, start, end, state, color = line.strip('\n').split('\t')
+        chr, start, end, state, color = line.strip('\n').split('\t')[0:5]
         start = int(start)
         end = int(end)
         seq = infasta.fetch(chr, max(0, start-flank), end+flank).upper()
@@ -21,7 +21,8 @@ def main():
         if len(seq) < BIN+flank*2:
             seq += 'N'*(BIN+flank*2-len(seq))
         
-        print '\t'.join([chr, str(start), str(end), state, color, seq])
+        print line.strip('\n')+'\t'+seq
+        #print '\t'.join([chr, str(start), str(end), state, color, seq])
     
     
     
