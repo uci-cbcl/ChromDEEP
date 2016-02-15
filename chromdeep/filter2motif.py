@@ -64,6 +64,7 @@ def main():
         i += BATCH_SIZE
         
         print '%s/%s data points processed...' % (i, N)
+        sys.stdout.flush()
         
     
     x = X[i:N]
