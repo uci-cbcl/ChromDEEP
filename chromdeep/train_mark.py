@@ -13,11 +13,11 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 np.random.seed(0)
 
-NB_FILTER = 200
+# NB_FILTER = 200
 # NB_HIDDEN = 25
 FILTER_LEN = 20
 POOL_FACTOR = 3
-DROP_OUT_CNN = 0.5
+# DROP_OUT_CNN = 0.5
 # DROP_OUT_MLP = 0.1
 # LR = 0.01
 # DECAY = 1e-6
@@ -29,8 +29,10 @@ NB_EPOCH = 50
 def main():
     base_name = sys.argv[1]
     save_name = sys.argv[2]
-    nb_hidden = int(sys.argv[3])
-    drop_out_mlp = float(sys.argv[4])
+    nb_filter = int(sys.argv[3])
+    nb_hidden = int(sys.argv[4])
+    drop_out_cnn = float(sys.argv[5])
+    drop_out_mlp = float(sys.argv[6])
     
     print 'loading data...'
     sys.stdout.flush()
@@ -50,13 +52,13 @@ def main():
     
     model.add(Convolution1D(input_dim=channel_num,
                         input_length=seq_len,
-                        nb_filter=NB_FILTER,
+                        nb_filter=nb_filter,
                         border_mode='valid',
                         filter_length=FILTER_LEN,
                         activation='relu'))
 #     model.add(MaxPooling1D(pool_length=seq_len-FILTER_LEN))
     model.add(MaxPooling1D(pool_length=pool_len, stride=pool_len))
-    model.add(Dropout(DROP_OUT_CNN))
+    model.add(Dropout(drop_out_cnn))
     model.add(Flatten())
     
     model.add(Dense(nb_hidden))
