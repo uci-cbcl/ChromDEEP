@@ -76,7 +76,7 @@ def main():
     outfile.write(MEME_HEADER)
     
     for i in range(0, nb_filter):
-        outfile.write('MOTIF %s\n\n' % (i))
+        outfile.write('MOTIF FILTER_%s\n\n' % (i))
         outfile.write('letter-probability matrix: alength= 4\n')
         
         for j in range(0, filter_len):
