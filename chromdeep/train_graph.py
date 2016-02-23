@@ -20,7 +20,7 @@ NB_FILTER1 = 50
 NB_FILTER2 = 200
 NB_FILTER3 = 50
 POOL_FACTOR = 1
-NB_HIDDEN = 15
+# NB_HIDDEN = 15
 DROP_OUT_CNN = 0.2
 DROP_OUT_MLP = 0.1
 # ACTIVATION = 'relu'
@@ -32,6 +32,7 @@ NB_EPOCH = 50
 def main():
     base_name = sys.argv[1]
     save_name = sys.argv[2]
+    nb_hidden = int(sys.argv[3])
     
     print 'loading data...'
     sys.stdout.flush()
@@ -90,11 +91,11 @@ def main():
     model.add_node(Flatten(), name='flat3', input='drop_cnn3')
 
 
-    model.add_node(Dense(NB_HIDDEN), name='dense1', inputs=['flat1', 'flat2', 'flat3'])
+    model.add_node(Dense(nb_hidden), name='dense1', inputs=['flat1', 'flat2', 'flat3'])
     model.add_node(Activation('relu'), name='act1', input='dense1')
     model.add_node(Dropout(DROP_OUT_MLP), name='drop_mlp1', input='act1')
     
-    model.add_node(Dense(input_dim=NB_HIDDEN, output_dim=class_num, b_constraint=maxnorm(0)), name='dense2', input='drop_mlp1')
+    model.add_node(Dense(input_dim=nb_hidden, output_dim=class_num, b_constraint=maxnorm(0)), name='dense2', input='drop_mlp1')
     model.add_node(Activation('sigmoid'), name='act2', input='dense2')
     
     model.add_output(name='output', input='act2')
