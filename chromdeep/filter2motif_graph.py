@@ -55,9 +55,9 @@ def main():
     nb_filter1, channel_num, filter_len1, _ = model.nodes['conv1'].get_weights()[0].shape
     nb_filter2, channel_num, filter_len2, _ = model.nodes['conv2'].get_weights()[0].shape
     nb_filter3, channel_num, filter_len3, _ = model.nodes['conv3'].get_weights()[0].shape
-    f1 = theano.function([model.get_input()], model.nodes['conv1'].get_output())
-    f2 = theano.function([model.get_input()], model.nodes['conv2'].get_output())
-    f3 = theano.function([model.get_input()], model.nodes['conv3'].get_output())
+    f1 = theano.function([model.nodes['conv1'].get_input()], model.nodes['conv1'].get_output())
+    f2 = theano.function([model.nodes['conv2'].get_input()], model.nodes['conv2'].get_output())
+    f3 = theano.function([model.nodes['conv3'].get_input()], model.nodes['conv3'].get_output())
     
     counts1 = np.zeros((nb_filter1, filter_len1, channel_num))+1e-5
     counts2 = np.zeros((nb_filter2, filter_len2, channel_num))+1e-5
